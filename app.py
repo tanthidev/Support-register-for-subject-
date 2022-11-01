@@ -7,6 +7,7 @@ def readfile():
        for row in reader:
             for a in row:
                 print(a.encode('cp1252').decode('utf8'))
+            print("\n")
 
 
 
