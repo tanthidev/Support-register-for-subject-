@@ -1,0 +1,66 @@
+﻿
+$(function () {
+
+    var SiteMasterView = Backbone.View.extend({
+        el: ".wrapper",
+
+
+        initialize: function () {
+
+            this.render();
+
+        },
+
+        events: {
+            "click #changeLanguage": "changeLanguage"
+        },
+
+        render: function () {
+            var self = this;
+
+        },
+
+        changeLanguage: function () {
+            var self = this;
+            $.ajax({
+                //type: "post",
+                url: "/API/Common/ChangeLanguage",
+                async: false,
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (result) {
+                    window.location.reload();
+                }
+            });
+        },
+
+        showMessages: function (list) {
+            var strTinNhanChuaDoc = "";
+            var tieuDe = "Bạn có ";
+            var tinNhanChuaDoc = 0;
+            _.each(list, function (item) {
+                if (item.DaXem == false) {
+
+                    tinNhanChuaDoc = tinNhanChuaDoc + 1;
+                    strTinNhanChuaDoc += "<li><a href='#'><span class='desc'>" + item.TuaDe
+                + "<br/><b style='float:right'>" + item.strNgayGui + "</b>" + "</span></a></li>";
+
+                    //   console.log(item.TieuDe);
+                }
+
+            });
+
+            if (tinNhanChuaDoc > 0)
+                tieuDe += tinNhanChuaDoc + " tin nhắn chưa đọc";
+            $(".lblThongBaoTinNhan", this.el).html(tieuDe);
+            $(".lblSoLuongTinNhan", this.el).html(tinNhanChuaDoc);
+            $(".ulDSTinNhanChuaDoc", this.el).html(strTinNhanChuaDoc);
+
+
+        }
+
+
+
+    });
+    var app = new SiteMasterView();
+});

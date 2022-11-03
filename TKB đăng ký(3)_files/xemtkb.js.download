@@ -1,0 +1,300 @@
+﻿$(function () {
+
+
+    var TKBItemView = Backbone.View.extend({
+
+        tagName: "tr",
+
+        events: {
+
+    },
+
+    initialize: function (options) {
+        this.options = options || {};
+    },
+
+    render: function () {
+        var data = this.model; //.toJSON();
+        $(this.el).append(ich.nhommonRowTpl(data));
+
+        return this;
+    }
+
+
+});
+
+
+var ListView = Backbone.View.extend({
+    el: "#main-content",
+
+    initialize: function () {
+        var self = this;
+
+        this.language = $("#language", self.el).val();
+        // if (this.language == "en")
+        $("#header").html("XEM THỜI KHÓA BIỂU DỰ KIẾN | SEE THE PROPOSED SCHEDULE");
+
+
+        self.loadDataTable();
+        self.loadTKB();
+
+        utils.closeLoading();
+    },
+
+    events: {
+
+},
+
+
+render: function () {
+    var self = this;
+
+},
+
+
+show_fontWeight_Normal: function () {
+    var self = this;
+
+    $(".tr", self.el).removeClass("bold");
+
+},
+
+loadTKB: function () {
+
+    utils.openLoading();
+    var self = this;
+
+    $.ajax({
+        //type: "post",
+        url: "/API/XemTKB/LoadTKB",
+        async: false,
+
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function (result) {
+            self.showThongTinHocKy(result.hocKy);
+            if (result.loi != "") {
+                self.showThongBao(result.loi);
+            }
+            else {
+                self.drawTKB(result.list, result.nhomIDKhongThoaList);
+            }
+        },
+        error: function () {
+            //   console.log("err");
+        },
+        complete: function () {
+            //    console.log("completed");
+        }
+    });
+
+    utils.closeLoading();
+
+},
+
+showThongTinHocKy: function (hocKy) {
+    var self = this;
+    $("#lblHocKy", self.el).html("Học kỳ đăng ký hiện tại là " + hocKy.TenHocKy + ". Sinh viên vui lòng tham khảo thời khóa biểu trước khi Đăng ký môn học.");
+    var tenHK = "";
+    if (hocKy.HocKy == 3)
+        tenHK = "Summer";
+    else if (hocKy.HocKy == 4)
+        tenHK = "";
+    else if (hocKy.HocKy == 5)
+        tenHK = "";
+    else
+        tenHK = hocKy.HocKy;
+    tenHK += "/" + hocKy.NamHoc + "-" + (hocKy.NamHoc + 1);
+    $("#lblHocKy_En", self.el).html("Current registration semester is " + tenHK + ". Please refer to the schedule before registering for the course.");
+
+},
+
+drawTKB: function (list, nhomIDKhongThoaList) {
+    var self = this;
+
+    $("#tbnhommon").dataTable().fnDestroy();
+    $("#tbnhommon tbody", this.el).empty();
+
+    $("#lblMonKhongThoa", self.el).addClass("hide");
+    $("#lblMonKhongThoa_En", self.el).addClass("hide");
+
+    if (nhomIDKhongThoaList.length > 0) {
+        $("#lblMonKhongThoa", self.el).removeClass("hide");
+        $("#lblMonKhongThoa_En", self.el).removeClass("hide");
+    }
+
+    var formatText = "";
+
+    _.each(list, function (entity) {
+        var isLoi = 0;
+        if (nhomIDKhongThoaList.indexOf(entity.MaDangKy) != -1) { //co' du lieu
+            isLoi = 1;
+        }
+      //  console.log(entity);
+        formatText = formatText + self.drawChiTiet(entity, isLoi);
+
+        // $("#tbnhommon tbody", self.el).append(new TKBItemView({ model: entity, app: self }).render().el);
+
+    });
+
+    formatText = self.drawHeader() + formatText; // +self.drawFooter();
+    // formatText = formatText;
+
+    $("#tbnhommon", self.el).html(formatText);
+
+    self.loadDataTable();
+
+
+    // $('#tbnhommon').attr('data-page-length', list.length);
+
+    //    $("#tbnhommon", self.el)
+    //				.tablesorterPager({
+    //				    container: $(".ts-pager"),
+    //				    cssGoto: ".pagenum",
+    //				    removeRows: false,
+    //				    output: '{startRow} - {endRow} / {filteredRows} ({totalRows})'
+    //				});
+    //    $("#tbnhommon", self.el).trigger('pageSize', 20);
+    //    $("#tbnhommon", self.el).trigger("update");
+},
+
+drawHeader: function () {
+    var self = this;
+    var tb = "<thead>";
+    tb += "<tr>";
+    tb += " <th width='5%'>Mã MH <br /><label class='lbl-lang'>| Course code</label></th>";
+    tb += "  <th width='15%'>Tên MH <br /><label class='lbl-lang'>| Course name</label></th>";
+    tb += "   <th width='4%'>Số TC <br /><label class='lbl-lang'>| Credits</label></th>";
+    tb += "   <th width='6%'>Nhóm<br /><label class='lbl-lang'>| Group</label></th>";
+    //  tb += "   <th width='8%'>SL tối đa</th>  ";
+    tb += "   <th >Lịch học: Tiết - Tuần - Thứ - Phòng<br /><label class='lbl-lang'>| Schedule: Period - day - Room - week</label></th></th>";
+    tb += "   <th width='10%'>Tên giảng viên<br /><label class='lbl-lang'>| Lecturer name</label></th></th>";
+    tb += "   <th width='6%'>Ghi chú<br /><label class='lbl-lang'>| Note</label></th></th>     ";
+    tb += " </tr>";
+
+    tb += " </thead>";
+    return tb;
+},
+
+drawFooter: function () {
+    var self = this;
+    var tb = "<tfoot>";
+
+    tb += "<tr>";
+    tb += "<th><input type='text' placeholder='Mã MH' style='width:100%;' /></th>";
+    tb += "<th><input type='text' placeholder='Tên MH' style='width:100%;' /></th>";
+    tb += "<th><input type='text' placeholder='Số TC' style='width:100%;' /></th>";
+    tb += "<th><input type='text' placeholder='Nhóm' style='width:100%;' /></th>";
+    // tb += "<th><input type='text' placeholder='SL tối đa' style='width:100%;' /></th>";
+    tb += "<th><input type='text' placeholder='Lịch học: Tiết - Tuần - Thứ - Phòng' style='width:100%;' /></th>";
+    tb += "<th><input type='text' placeholder='Tên giảng viên' style='width:100%;' /></th>";
+    tb += "<th><input type='text' placeholder='Ghi chú' style='width:100%;' /></th>";
+
+    tb += " </tr>";
+
+    tb += "</tfoot>";
+    return tb;
+
+},
+
+drawChiTiet: function (data, isLoi) {
+    var self = this;
+    var tb = "<tr ";
+    if (isLoi == 1)
+        tb += " class='bg-red bold'";
+
+    if (data.IsSVDangKy)
+        tb += " class='bg-green bold'";
+
+    tb += " id='" + data.MonHocID + "'>";
+
+    // tb += "<tr " + (data.IsSVDangKy ? " class='bg-green bold'" : "") + " id='" + data.MonHocID + "'>";
+    tb += "<td " + (data.LaNhomThucHanh ? "class='text-primary'" : "") + ">" + data.MonHocID + "</td>";
+    tb += "<td " + (data.LaNhomThucHanh ? "class='text-primary'" : "") + ">" + data.TenMonHoc
+     + "<br /><label class='lbl-lang'>| " + data.TenMonHocTiengAnh + "</label>" + "</td>";
+    tb += "<td>" + data.SoDVHocTap + "</td>";
+    tb += "<td>" + data.sNhom + "</td>";
+    // tb += "<td>" + data.SoSVToiDa + "</td>";
+    tb += "<td>" + data.LichHocHTML + "</td>";
+
+    tb += "<td>" + data.TenGiangViens + "</td>";
+    tb += "<td>" + data.LuuY + "</td>";
+    tb += "</tr>";
+    return tb;
+},
+
+loadDataTable: function () {
+    // DataTable
+    var table = $('#tbnhommon').DataTable({ "language": {
+        //"emptyTable": "Không có dữ liệu.",
+        "info": "Đang hiển thị từ dòng _START_ đến dòng _END_ trong _TOTAL_ dòng dữ liệu | Displaying from line _START_ to line _END_ in _TOTAL_ data row",
+        "infoEmpty": "Đang hiển thị từ dòng 0 đến dòng 0 trong 0 dòng dữ liệu | Displaying from line 0 to line 0 in 0 data row",
+        "infoFiltered": "(Lọc trong _MAX_ dòng dữ liệu)",
+        "infoPostFix": "",
+        "thousands": ",",
+        "lengthMenu": "Hiển thị _MENU_ dòng dữ liệu",
+        "loadingRecords": "Đang lấy dữ liệu...",
+        "processing": "Đang chạy...",
+        "search": "Tìm kiếm trên tất cả | Search on all:",
+        "zeroRecords": "Không tìm thấy kết quả | No results found",
+        "paginate": {
+            "first": "Trang đầu",
+            "last": "Trang cuối",
+            "next": "Trang kế tiếp",
+            "previous": "Trang trước"
+        },
+        "aria": {
+            "sortAscending": ": activate to sort column ascending",
+            "sortDescending": ": activate to sort column descending"
+        }
+    },
+        "dom": 'T<"clear">lfrtip',
+        "tableTools": {
+            "sRowSelect": "multi",
+            "sSwfPath": "../Assets/DataTables-1.10.7/extensions/TableTools/swf/copy_csv_xls_pdf.swf"
+        },
+        "bPaginate": false,
+        "bFilter": true,
+        "bSort": false
+        //        "aButtons": [
+        //					{
+        //					    "sExtends": "xls",
+        //					    "sFileName": "visibleProjectList.xls",
+        //					    "sButtonText": "Download Visible List To Excel",
+        //					    "bSelectedOnly": true,
+        //					    "fnClick": function (nButton, oConfig, oFlash) {
+        //					        this.fnSelect($('tbody tr'));
+        //					        this.fnSetText(oFlash, this.fnGetTableData(oConfig));
+        //					    }
+        //					}
+        //				]
+    });
+
+    // Apply the search
+    table.columns().every(function () {
+        var that = this;
+
+        $('input', this.footer()).on('keyup change', function () {
+            // console.log(this.value);
+            // console.log(that.search());
+            if (that.search() == this.value) {
+                that
+					.search(this.value)
+					.draw();
+            }
+        });
+    });
+
+
+},
+
+showThongBao: function (thongBao) {
+    //var self =this;
+    bootbox.alert(thongBao);
+}
+
+});
+
+
+var app = new ListView();
+});

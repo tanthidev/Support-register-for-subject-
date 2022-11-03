@@ -1,0 +1,120 @@
+p.para {
+    color: #777777;
+    font-family: "Open Sans",sans-serif;
+    font-size: 1em;
+    line-height: 1.8em;
+    margin: 4% 0;
+}
+
+p.para1 {
+    color: #777777;
+    font-family: "Open Sans",sans-serif;
+    font-size: 1em;
+    line-height: 1.8em;
+    margin: 2% 0;
+}
+
+.blog_list {
+    margin-top: 10px;
+}
+
+.blog_list h4 a {
+    color: #0067ac;
+    font-family: "Open Sans",sans-serif;
+    font-size: 14px;
+    line-height: 1.5em;
+    transition: all 0.3s ease-out 0s;
+}
+.blog_list h4 a:hover {
+    color: #ff61a0;
+}
+.blog_list h5 {
+    color: #666666;
+    font-family: "Open Sans",sans-serif;
+    font-size: 1em;
+    line-height: 1.5em;
+    margin-top: 1%;
+}
+.blog_list h5 a {
+    color: #ff61a0;
+    transition: all 0.3s ease-out 0s;
+}
+.blog_list h5 a:hover {
+    color: #666666;
+}
+.blog_para {
+    margin: 2% 0;
+}
+.blog_para p a {
+    float: left;
+    margin-right: 4%;
+}
+.blog_para p img {
+	float: left;
+    margin-right: 4%;
+    margin-top: 10px;
+}
+
+#pnl_article {
+	margin: 0px;
+	padding: 0px;
+}
+
+#pnl_article .span{
+	margin-right: 30px;
+	width: 420px;
+}
+
+.article {
+	text-align: justify;
+	text-overflow: ellipsis;
+    word-wrap: break-word;
+    overflow: hidden;
+    max-height: 12.5em;
+    line-height: 1.9;
+}
+
+.article-ttsv {
+	text-align: justify;
+	text-overflow: ellipsis;
+    word-wrap: break-word;
+    overflow: hidden;
+}
+
+.article .title {
+   	font-size: 18px;
+	color: darkred;
+	font-weight: bold;
+}
+
+.article .author {
+	color: gray;
+	font-weight: bold;
+	font-size: 11px;
+	line-height: 12px;
+}
+
+.article .time, .article-ttsv .time {
+	color: red;
+	font-size: 11px;
+    font-weight: normal !important;
+	text-align: left;
+    /*white-space: nowrap;*/
+    margin-left: 0px;
+}
+
+.article hr {
+}
+
+.bs-example {
+    background-color: #fff;
+    border-color: #ddd;
+    border-radius: 4px 4px 0 0;
+    border-width: 1px;
+	border-style: solid;
+    box-shadow: none;
+    margin-left: 0;
+    margin-right: 0;
+	padding: 5px;
+    position: relative;
+}

@@ -1,0 +1,152 @@
+// The Template Loader. Used to asynchronously load templates located in separate .html files
+window.utils = {
+    serializeObj: function (form, clear_blank) {
+        var obj = {}
+        var fields = $(form).serializeArray();
+        jQuery.each(fields, function (i, field) {
+            if (clear_blank && field.value != '') {
+                obj[field.name] = field.value;
+            }
+            else if (!clear_blank) obj[field.name] = field.value;
+        });
+        $("input[type='checkbox']", form).each(function () {
+            obj[$(this).attr('name')] = 0;
+            if ($(this).prop('checked') == true) obj[$(this).attr('name')] = 1;
+        });
+        return obj;
+    },
+
+	json2Form: function(obj, form) {
+		var fields = $(form).serializeArray();
+        jQuery.each(fields, function (i, field) {
+			$('[name="' + field.name + '"]', $(form)).val(obj[field.name]);
+        });
+		$("input[type='checkbox']", form).each(function () {
+			$(this).prop('checked', false);
+            if (obj[$(this).attr('name')] == 1)
+				$(this).prop('checked', true);
+        });
+	},
+	
+    date2String: function (date) {
+        var result = date.getDate().toString() + "/" + (date.getMonth() + 1).toString() + "/" + date.getFullYear().toString();
+        result += " " + date.getHours().toString() + ":" + date.getMinutes().toString() + ":" + date.getSeconds().toString();
+        return result;
+    },
+
+    toShortDate: function (date) {
+        if (date.getFullYear() <= 1)
+            return "";
+        var result = date.getDate().toString() + "/" + (date.getMonth() + 1).toString() + "/" + date.getFullYear().toString();
+        return result;
+    },
+	
+	toShortDateEN: function (date) {
+        if (date.getFullYear() <= 1)
+            return "";
+        var result = date.getFullYear().toString() + "/" + (date.getMonth() + 1).toString() + "/" + date.getDate().toString();
+        return result;
+    },
+
+    changeMenuItem: function (menu) {
+        var el = "#" + menu;
+        var menuItem = $(el).closest("li");
+        if ($(menuItem).find("ul").length > 0)
+            return;
+
+        $("li", ".sidebar-menu").each(function () {
+            if ($(this).hasClass("active"))
+                $(this).removeClass("active");
+        });
+
+        var mnu = menuItem;
+        while ($(mnu).closest("ul").hasClass("treeview-menu")) {
+            $(mnu).closest("ul").css('display', 'block');
+            $(mnu).closest("ul").parent().addClass("active");
+            mnu = $(mnu).closest("ul").parent();
+        }
+        menuItem.addClass("active");
+    },
+
+    displayValidationErrors: function (messages) {
+        for (var key in messages) {
+            if (messages.hasOwnProperty(key)) {
+                this.addValidationError(key, messages[key]);
+            }
+        }
+        this.showAlert('Warning!', 'Fix validation errors and try again', 'alert-warning');
+    },
+
+    addValidationError: function (field, message) {
+        var controlGroup = $('#' + field).parent().parent();
+        controlGroup.addClass('has-error');
+        $('.help-block', controlGroup).html(message);
+    },
+
+    removeValidationError: function (field) {
+        var controlGroup = $('#' + field).parent().parent();
+        controlGroup.removeClass('has-error');
+        $('.help-block', controlGroup).html('');
+    },
+
+    showAlert: function (title, text, klass) {
+        $('.alert').removeClass("alert-error alert-warning alert-success alert-info");
+        $('.alert').addClass(klass);
+        $('.alert').html('<a href="#" class="close" data-dismiss="alert">&times;</a><strong>' + title + '</strong> ' + text);
+        $('.alert').show();
+    },
+
+    hideAlert: function () {
+        $('.alert').hide();
+    },
+
+    htmlEncode: function (value) {
+        return document.createElement('a').appendChild(document.createTextNode(value)).parentNode.innerHTML;
+    },
+
+    htmlDecode: function (value) {
+        var a = document.createElement('a');
+        a.innerHTML = value;
+        return a.textContent;
+    },
+
+	openLoading: function() {
+		$('#loading').fadeIn(100);
+	},
+    closeLoading: function () {
+        $('#loading').fadeOut(2000);
+    },
+
+    setOpenTicket: function (num) {
+        $("#open-ticket").html(num);
+    }
+};
+
+DEBUG = true;
+
+// Show log
+debug = function(message) {
+	if (DEBUG)
+		console.log(message);
+};
+
+window.Confirm = (function() {
+    "use strict";
+
+    var elem,
+        hideHandler,
+        that = {};
+
+    that.init = function(options) {
+        elem = $(options.selector);
+    };
+
+    that.show = function(text) {
+        clearTimeout(hideHandler);
+
+        elem.find("span").html(text);
+        elem.delay(200).fadeIn().delay(4000).fadeOut();
+    };
+
+    return that;
+}());
